@@ -1,0 +1,94 @@
+/* Mobile Optimization */
+@media (max-width: 768px) {
+    .kanban {
+        display: block;
+        /* Disable flex to handle tabs */
+        white-space: normal;
+        overflow: hidden;
+        min-height: auto;
+        padding: 0;
+    }
+
+    .kanban-column {
+        display: none;
+        /* Hide all by default */
+        width: 100%;
+        min-width: 100%;
+        max-height: calc(100vh - 280px);
+        /* Adjust for tabs and nav */
+        margin-bottom: 20px;
+    }
+
+    .kanban-column.active {
+        display: flex;
+        /* Show active only */
+    }
+
+    .mobile-kanban-tabs {
+        display: flex;
+        gap: 8px;
+        padding: 12px 0;
+        margin-bottom: 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .mobile-tab {
+        padding: 8px 16px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .mobile-tab.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+    }
+
+    /* Make modals fullscreen on mobile */
+    .modal {
+        max-width: 100%;
+        height: 100%;
+        max-height: 100%;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+        /* Bottom sheet effect possibility, but fullscreen is safer */
+    }
+
+    .modal-body {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .bottom-nav {
+        display: block;
+        /* Ensure it's visible */
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .container {
+        padding-bottom: 80px;
+        /* Space for bottom nav */
+    }
+}
+
+/* Hide mobile tabs on desktop */
+@media (min-width: 769px) {
+    .mobile-kanban-tabs {
+        display: none;
+    }
+}

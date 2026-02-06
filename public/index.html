@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,6 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/mobile.css">
 </head>
 
 <body>
@@ -99,6 +101,11 @@
             </svg>
             Добавить город
           </button>
+        </div>
+
+        <!-- Канбан табы (мобильные) -->
+        <div class="mobile-kanban-tabs" id="mobile-kanban-tabs">
+          <!-- Заполняется JS -->
         </div>
 
         <!-- Канбан доска -->
@@ -197,6 +204,29 @@
             <input type="text" id="new-source-name" class="form-input" placeholder="Название источника"
               style="flex: 1;">
             <button class="btn btn-primary" id="btn-save-source">Добавить</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3 class="settings-section-title">Пользователи</h3>
+          <div id="settings-users" class="chips-container"
+            style="flex-direction: column; align-items: stretch; gap: 8px;">
+            <!-- Заполняется JS -->
+          </div>
+          <div
+            style="margin-top: 12px; display: grid; gap: 8px; grid-template-columns: 1fr 1fr auto; align-items: center;">
+            <input type="text" id="new-user-login" class="form-input" placeholder="Логин">
+            <input type="password" id="new-user-pass" class="form-input" placeholder="Пароль">
+            <button class="btn btn-primary" id="btn-add-user" style="height: 100%;">Создать</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3 class="settings-section-title">Смена пароля</h3>
+          <div style="display: grid; gap: 8px;">
+            <input type="password" id="change-pass-current" class="form-input" placeholder="Текущий пароль">
+            <input type="password" id="change-pass-new" class="form-input" placeholder="Новый пароль">
+            <button class="btn btn-secondary" id="btn-change-pass">Сохранить новый пароль</button>
           </div>
         </div>
 

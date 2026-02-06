@@ -191,6 +191,31 @@ class Api {
     async getStatsSources(period = 'all') {
         return this.request(`/stats/sources?period=${period}`);
     }
+
+    // Пользователи
+    async getUsers() {
+        return this.request('/auth/users');
+    }
+
+    async createUser(username, password) {
+        return this.request('/auth/users', {
+            method: 'POST',
+            body: JSON.stringify({ username, password })
+        });
+    }
+
+    async deleteUser(id) {
+        return this.request(`/auth/users/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    async changePassword(currentPassword, newPassword) {
+        return this.request('/auth/password', {
+            method: 'PUT',
+            body: JSON.stringify({ currentPassword, newPassword })
+        });
+    }
 }
 
 const api = new Api();

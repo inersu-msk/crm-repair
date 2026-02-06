@@ -109,6 +109,7 @@ class App {
 
         document.getElementById('btn-settings').addEventListener('click', () => {
             this.navigateTo('settings');
+            this.renderSettingsUsers(); // Load users when opening settings
         });
 
         // Выход
@@ -181,24 +182,47 @@ class App {
         const phoneError = document.getElementById('phone-error');
         let phoneDebounceTimer;
 
-        phoneInput.addEventListener('input', () => {
-            const phone = phoneInput.value.trim();
+        phoneInput.addEventListener('input', (e) => {
+            let value = phoneInput.value;
+
+            // Если начали стирать - не мешаем
+            if (e.inputType === 'deleteContentBackward') return;
+
+            // Оставляем только цифры
+            let digits = value.replace(/\D/g, '');
+
+            // Если первая цифра 7 или 8, убираем её для нормализации
+            if (digits.startsWith('7') || digits.startsWith('8')) {
+                digits = digits.substring(1);
+            }
+
+            // Ограничиваем длину (10 цифр номера)
+            digits = digits.substring(0, 10);
+
+            // Формируем +7...
+            let formatted = '+7';
+            if (digits.length > 0) formatted += digits;
+
+            phoneInput.value = formatted;
 
             // Сбрасываем ошибку при вводе
             phoneInput.classList.remove('error');
             phoneError.classList.add('hidden');
 
-            // Debounced загрузка истории
+            // Debounced загрузка истории только если номер полный
             clearTimeout(phoneDebounceTimer);
-            phoneDebounceTimer = setTimeout(() => {
-                const orderId = document.getElementById('order-id').value;
-                this.loadPhoneHistory(phone, orderId);
-            }, 500);
+            if (digits.length === 10) {
+                phoneDebounceTimer = setTimeout(() => {
+                    const orderId = document.getElementById('order-id').value;
+                    this.loadPhoneHistory(formatted, orderId);
+                }, 500);
+            }
         });
 
         phoneInput.addEventListener('blur', () => {
             const phone = phoneInput.value.trim();
-            if (phone && !this.validatePhone(phone)) {
+            // Разрешаем пустой (если необязательно) или проверяем полный формат
+            if (phone && phone.length < 12) { // +7 + 10 цифр = 12 символов
                 phoneInput.classList.add('error');
                 phoneError.classList.remove('hidden');
             }
@@ -451,6 +475,51 @@ class App {
                 this.showToast(error.message, 'error');
             }
         });
+
+        // Пользователи (Админка)
+        document.getElementById('btn-add-user').addEventListener('click', async () => {
+            const loginInput = document.getElementById('new-user-login');
+            const passInput = document.getElementById('new-user-pass');
+            const username = loginInput.value.trim();
+            const password = passInput.value;
+
+            if (!username || !password) {
+                this.showToast('Введите логин и пароль', 'error');
+                return;
+            }
+
+            try {
+                await api.createUser(username, password);
+                loginInput.value = '';
+                passInput.value = '';
+                this.renderSettingsUsers();
+                this.showToast('Пользователь создан', 'success');
+            } catch (error) {
+                this.showToast(error.message, 'error');
+            }
+        });
+
+        // Смена пароля
+        document.getElementById('btn-change-pass').addEventListener('click', async () => {
+            const currentPassInput = document.getElementById('change-pass-current');
+            const newPassInput = document.getElementById('change-pass-new');
+            const currentPass = currentPassInput.value;
+            const newPass = newPassInput.value;
+
+            if (!currentPass || !newPass) {
+                this.showToast('Заполните все поля', 'error');
+                return;
+            }
+
+            try {
+                await api.changePassword(currentPass, newPass);
+                currentPassInput.value = '';
+                newPassInput.value = '';
+                this.showToast('Пароль успешно изменен', 'success');
+            } catch (error) {
+                this.showToast(error.message, 'error');
+            }
+        });
     }
 
     async loadInitialData() {
@@ -575,6 +644,46 @@ class App {
                 }
             });
         });
+    }
+
+    async renderSettingsUsers() {
+        const container = document.getElementById('settings-users');
+        if (!container) return;
+
+        container.innerHTML = '<div class="loading-small">Загрузка...</div>';
+
+        try {
+            const users = await api.getUsers();
+
+            if (users.length === 0) {
+                container.innerHTML = '<div class="text-muted">Нет пользователей</div>';
+                return;
+            }
+
+            container.innerHTML = users.map(user => `
+                <div class="chip" style="justify-content: space-between; width: 100%;">
+                    <span>${user.username} <span class="text-muted" style="font-size: 12px;">(ID: ${user.id})</span></span>
+                    <button class="chip-delete" data-user-id="${user.id}" title="Удалить">×</button>
+                </div>
+            `).join('');
+
+            container.querySelectorAll('.chip-delete').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (confirm('Удалить пользователя? Это действие нельзя отменить.')) {
+                        try {
+                            await api.deleteUser(btn.dataset.userId);
+                            this.renderSettingsUsers();
+                            this.showToast('Пользователь удален', 'success');
+                        } catch (error) {
+                            this.showToast(error.message, 'error');
+                        }
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('Render users error:', error);
+            container.innerHTML = '<div class="text-error">Ошибка загрузки</div>';
+        }
     }
 
     renderEmptyState() {
@@ -829,6 +938,11 @@ class App {
             phoneInput.classList.add('error');
             phoneError.classList.remove('hidden');
             this.showToast('Телефон должен быть в формате +7XXXXXXXXXX', 'error');
+            return;
+        }
+
+        if (phone && phone.length !== 12) {
+            this.showToast('Номер телефона должен содержать 10 цифр после +7', 'error');
             return;
         }
 

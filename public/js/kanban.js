@@ -20,10 +20,35 @@ class Kanban {
 
     render() {
         this.container.innerHTML = '';
+        this.renderMobileTabs();
 
-        this.statuses.forEach(status => {
+        this.statuses.forEach((status, index) => {
             const column = this.createColumn(status);
+            if (index === 0) column.classList.add('active'); // Default active for mobile
             this.container.appendChild(column);
+        });
+    }
+
+    renderMobileTabs() {
+        const tabsContainer = document.getElementById('mobile-kanban-tabs');
+        if (!tabsContainer) return;
+
+        tabsContainer.innerHTML = '';
+        this.statuses.forEach((status, index) => {
+            const tab = document.createElement('button');
+            tab.className = `mobile-tab ${index === 0 ? 'active' : ''}`;
+            tab.textContent = status.name;
+            tab.onclick = () => {
+                // Switch tabs
+                tabsContainer.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Switch columns
+                this.container.querySelectorAll('.kanban-column').forEach(c => {
+                    c.classList.toggle('active', c.dataset.statusId == status.id);
+                });
+            };
+            tabsContainer.appendChild(tab);
         });
     }
 
