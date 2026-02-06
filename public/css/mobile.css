@@ -1,5 +1,24 @@
 /* Mobile Optimization */
 @media (max-width: 768px) {
+
+    /* Уменьшаем шапку на мобильных */
+    .navbar {
+        padding: 8px 0;
+    }
+
+    .navbar-search {
+        display: none;
+        /* Скрываем поиск на мобильных */
+    }
+
+    .navbar-brand {
+        font-size: 18px;
+    }
+
+    .city-tabs {
+        padding: 8px 0;
+    }
+
     .kanban {
         display: block;
         /* Disable flex to handle tabs */
