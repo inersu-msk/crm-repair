@@ -125,7 +125,7 @@ EOF
 
 rm -f /etc/nginx/sites-enabled/default
 ln -sf /etc/nginx/sites-available/crm /etc/nginx/sites-enabled/
-nginx -t && systemctl reload nginx
+nginx -t && systemctl restart nginx
 
 # Очистка
 rm -rf $TMP_DIR
