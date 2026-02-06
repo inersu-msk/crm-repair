@@ -31,6 +31,8 @@ TMP_DIR="/tmp/crm-install"
 
 # Запрос домена
 read -p "Введите домен (или Enter для доступа по IP): " DOMAIN
+read -p "Введите порт Nginx (по умолчанию 80): " NGINX_PORT
+NGINX_PORT=${NGINX_PORT:-80}
 
 echo ""
 echo -e "${YELLOW}📦 [1/5] Установка системных пакетов...${NC}"
@@ -108,7 +110,7 @@ fi
 
 cat > /etc/nginx/sites-available/crm << EOF
 server {
-    listen 80;
+    listen $NGINX_PORT;
     server_name $SERVER_NAME;
     
     location / {
@@ -125,7 +127,7 @@ EOF
 
 rm -f /etc/nginx/sites-enabled/default
 ln -sf /etc/nginx/sites-available/crm /etc/nginx/sites-enabled/
-nginx -t && systemctl restart nginx
+nginx -t && systemctl reload nginx
 
 # Очистка
 rm -rf $TMP_DIR
@@ -136,13 +138,21 @@ echo -e "${GREEN}✅ CRM успешно установлена!${NC}"
 echo -e "${GREEN}============================================${NC}"
 echo ""
 if [ -n "$DOMAIN" ]; then
-    echo -e "🌐 Откройте: ${YELLOW}http://$DOMAIN${NC}"
-    echo ""
-    echo -e "Для SSL выполните:"
-    echo -e "  ${YELLOW}apt install -y certbot python3-certbot-nginx${NC}"
-    echo -e "  ${YELLOW}certbot --nginx -d $DOMAIN${NC}"
+    if [ "$NGINX_PORT" != "80" ]; then
+        echo -e "🌐 Откройте: ${YELLOW}http://$DOMAIN:$NGINX_PORT${NC}"
+    else
+        echo -e "🌐 Откройте: ${YELLOW}http://$DOMAIN${NC}"
+        echo ""
+        echo -e "Для SSL выполните:"
+        echo -e "  ${YELLOW}apt install -y certbot python3-certbot-nginx${NC}"
+        echo -e "  ${YELLOW}certbot --nginx -d $DOMAIN${NC}"
+    fi
 else
-    echo -e "🌐 Откройте: ${YELLOW}http://IP-СЕРВЕРА${NC}"
+    if [ "$NGINX_PORT" != "80" ]; then
+        echo -e "🌐 Откройте: ${YELLOW}http://IP-СЕРВЕРА:$NGINX_PORT${NC}"
+    else
+        echo -e "🌐 Откройте: ${YELLOW}http://IP-СЕРВЕРА${NC}"
+    fi
 fi
 echo ""
 echo -e "📊 Управление:"
