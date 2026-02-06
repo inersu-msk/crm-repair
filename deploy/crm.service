@@ -1,0 +1,18 @@
+[Unit]
+Description=CRM Orders Management System
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/crm
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=crm
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

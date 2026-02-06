@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>CRM - Управление заказами</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <!-- Страница авторизации -->
+  <div id="auth-page" class="auth-page hidden">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <h1>🔧 CRM</h1>
+        <p>Управление заказами на ремонт</p>
+      </div>
+      <div id="auth-error" class="auth-error hidden"></div>
+      <form id="auth-form" class="auth-form">
+        <div class="form-group">
+          <label class="form-label" for="username">Логин</label>
+          <input type="text" id="username" class="form-input" placeholder="Введите логин" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">Пароль</label>
+          <input type="password" id="password" class="form-input" placeholder="Введите пароль" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" id="auth-btn">Войти</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Основное приложение -->
+  <div id="app" class="hidden">
+    <!-- Навигация -->
+    <nav class="navbar">
+      <div class="container navbar-content">
+        <a href="#" class="navbar-brand" data-page="orders">
+          🔧 <span>CRM</span>
+        </a>
+
+        <div class="navbar-search" id="search-container">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+          <input type="text" id="search-input" placeholder="Поиск заказов...">
+          <div id="search-results" class="search-results hidden"></div>
+        </div>
+
+        <div class="navbar-actions">
+          <button class="btn btn-ghost btn-icon" id="btn-stats" title="Статистика">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v18h18"></path>
+              <path d="m19 9-5 5-4-4-3 3"></path>
+            </svg>
+          </button>
+          <button class="btn btn-ghost btn-icon" id="btn-settings" title="Настройки">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z">
+              </path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+          <button class="btn btn-ghost btn-icon" id="btn-logout" title="Выйти">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" x2="9" y1="12" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Страница заказов -->
+    <div id="page-orders" class="page active">
+      <div class="container">
+        <!-- Табы городов -->
+        <div class="city-tabs" id="city-tabs">
+          <button class="city-tab city-tab-add" id="btn-add-city">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14"></path>
+              <path d="M12 5v14"></path>
+            </svg>
+            Добавить город
+          </button>
+        </div>
+
+        <!-- Канбан доска -->
+        <div class="kanban" id="kanban">
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Кнопка добавления заказа -->
+      <button class="fab" id="btn-add-order" title="Новый заказ">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"></path>
+          <path d="M12 5v14"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Страница статистики -->
+    <div id="page-stats" class="page">
+      <div class="container" style="padding-top: 20px; padding-bottom: 100px;">
+        <h2 style="margin-bottom: 20px;">📊 Статистика</h2>
+
+        <div class="period-tabs" id="stats-period">
+          <button class="period-tab" data-period="day">День</button>
+          <button class="period-tab active" data-period="week">Неделя</button>
+          <button class="period-tab" data-period="month">Месяц</button>
+          <button class="period-tab" data-period="all">Всё время</button>
+        </div>
+
+        <div class="stats-grid" id="stats-overview">
+          <!-- Заполняется JS -->
+        </div>
+
+        <h3 style="margin: 24px 0 16px;">👨‍🔧 Статистика мастеров</h3>
+        <div class="table-container">
+          <table class="table" id="stats-masters-table">
+            <thead>
+              <tr>
+                <th>Мастер</th>
+                <th>Заказов</th>
+                <th>Сумма</th>
+                <th>Заработок</th>
+                <th>Ср. чек</th>
+              </tr>
+            </thead>
+            <tbody id="stats-masters">
+              <!-- Заполняется JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="margin: 24px 0 16px;">📍 Статистика источников</h3>
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Источник</th>
+                <th>Заказов</th>
+                <th>Сумма</th>
+                <th>Ср. чек</th>
+              </tr>
+            </thead>
+            <tbody id="stats-sources">
+              <!-- Заполняется JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Страница настроек -->
+    <div id="page-settings" class="page">
+      <div class="container" style="padding-top: 20px; padding-bottom: 100px;">
+        <h2 style="margin-bottom: 20px;">⚙️ Настройки</h2>
+
+        <div class="settings-section">
+          <h3 class="settings-section-title">Города</h3>
+          <div id="settings-cities" class="chips-container">
+            <!-- Заполняется JS -->
+          </div>
+          <div style="margin-top: 12px; display: flex; gap: 8px;">
+            <input type="text" id="new-city-name" class="form-input" placeholder="Название города" style="flex: 1;">
+            <button class="btn btn-primary" id="btn-save-city">Добавить</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3 class="settings-section-title">Источники заказов</h3>
+          <div id="settings-sources" class="chips-container">
+            <!-- Заполняется JS -->
+          </div>
+          <div style="margin-top: 12px; display: flex; gap: 8px;">
+            <input type="text" id="new-source-name" class="form-input" placeholder="Название источника"
+              style="flex: 1;">
+            <button class="btn btn-primary" id="btn-save-source">Добавить</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3 class="settings-section-title">Аккаунт</h3>
+          <button class="btn btn-danger" id="btn-logout-settings">Выйти из аккаунта</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Нижняя навигация (мобильная) -->
+    <nav class="bottom-nav">
+      <div class="bottom-nav-items">
+        <a href="#" class="bottom-nav-item active" data-page="orders">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+            <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+            <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+            <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+          </svg>
+          Заказы
+        </a>
+        <a href="#" class="bottom-nav-item" data-page="stats">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"></path>
+            <path d="m19 9-5 5-4-4-3 3"></path>
+          </svg>
+          Статистика
+        </a>
+        <a href="#" class="bottom-nav-item" data-page="settings">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z">
+            </path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          Настройки
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Модальное окно создания/редактирования заказа -->
+  <div class="modal-overlay" id="modal-order">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-order-title">Новый заказ</h3>
+        <button class="modal-close" id="modal-order-close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"></path>
+            <path d="m6 6 12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="order-form">
+          <input type="hidden" id="order-id">
+
+          <div class="form-group">
+            <label class="form-label" for="order-address">Адрес</label>
+            <input type="text" id="order-address" class="form-input" placeholder="ул. Пушкина, д. 10">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="order-metro">Метро</label>
+            <input type="text" id="order-metro" class="form-input" placeholder="Тверская">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="order-problem">Проблема</label>
+            <textarea id="order-problem" class="form-textarea" placeholder="Не включается ноутбук"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="order-comment">Комментарий</label>
+            <textarea id="order-comment" class="form-textarea" placeholder="Дополнительная информация"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="order-source">Откуда заказ</label>
+            <select id="order-source" class="form-select">
+              <option value="">Не указано</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="order-time">Время</label>
+            <input type="text" id="order-time" class="form-input" placeholder="Завтра в 10:00">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="order-phone">Телефон</label>
+            <input type="tel" id="order-phone" class="form-input" placeholder="+79284719726" pattern="\+7\d{10}"
+              title="Формат: +7XXXXXXXXXX">
+            <div class="form-hint">Формат: +7XXXXXXXXXX</div>
+            <div id="phone-error" class="form-error hidden">Неверный формат телефона</div>
+          </div>
+
+          <!-- История заказов по номеру телефона -->
+          <div id="phone-history" class="phone-history hidden">
+            <div class="phone-history-header">📋 История заказов с этим номером</div>
+            <div id="phone-history-list" class="phone-history-list"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="order-client">Клиент</label>
+            <input type="text" id="order-client" class="form-input" placeholder="Имя клиента">
+          </div>
+
+          <div class="form-group autocomplete">
+            <label class="form-label" for="order-master">Мастер (ник в Telegram)</label>
+            <input type="text" id="order-master" class="form-input" placeholder="@master_nick" autocomplete="off">
+            <div id="master-autocomplete" class="autocomplete-list hidden"></div>
+          </div>
+
+          <!-- Запись разговора -->
+          <div class="form-group">
+            <label class="form-label" for="order-recording">🎙 Запись разговора</label>
+            <input type="url" id="order-recording" class="form-input"
+              placeholder="https://my.novofon.ru/system/media/talk/...">
+            <div id="recording-player" class="recording-player hidden">
+              <audio id="recording-audio" controls preload="none" style="width: 100%;"></audio>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-order-copy" title="Скопировать информацию">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+          </svg>
+          Скопировать
+        </button>
+        <button type="button" class="btn btn-secondary" id="modal-order-cancel">Отмена</button>
+        <button type="button" class="btn btn-danger hidden" id="modal-order-delete">Удалить</button>
+        <button type="button" class="btn btn-primary" id="modal-order-save">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно закрытия заказа -->
+  <div class="modal-overlay" id="modal-close-order">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Закрыть заказ</h3>
+        <button class="modal-close" id="modal-close-order-close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"></path>
+            <path d="m6 6 12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="close-order-id">
+        <div class="form-group">
+          <label class="form-label" for="close-order-amount">Сумма заказа (₽)</label>
+          <input type="number" id="close-order-amount" class="form-input" placeholder="5000" min="0" step="100">
+        </div>
+        <div style="background: var(--bg-tertiary); padding: 16px; border-radius: var(--radius-sm); margin-top: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: var(--text-muted);">Ваша доля (50%):</span>
+            <span id="close-order-my-share" style="color: var(--success); font-weight: 600;">0 ₽</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Мастеру (50%):</span>
+            <span id="close-order-master-share" style="color: var(--accent); font-weight: 600;">0 ₽</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-close-order-cancel">Отмена</button>
+        <button type="button" class="btn btn-primary" id="modal-close-order-confirm">Закрыть заказ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно добавления города -->
+  <div class="modal-overlay" id="modal-city">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Добавить город</h3>
+        <button class="modal-close" id="modal-city-close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"></path>
+            <path d="m6 6 12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="city-name">Название города</label>
+          <input type="text" id="city-name" class="form-input" placeholder="Москва">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-city-cancel">Отмена</button>
+        <button type="button" class="btn btn-primary" id="modal-city-save">Добавить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно назначения мастера -->
+  <div class="modal-overlay" id="modal-master">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Назначить мастера</h3>
+        <button class="modal-close" id="modal-master-close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"></path>
+            <path d="m6 6 12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted); margin-bottom: 16px;">Для перевода заказа в работу необходимо указать
+          мастера</p>
+        <input type="hidden" id="master-order-id">
+        <input type="hidden" id="master-status-id">
+        <div class="form-group autocomplete">
+          <label class="form-label" for="master-nick-input">Мастер (ник в Telegram)</label>
+          <input type="text" id="master-nick-input" class="form-input" placeholder="@master_nick" autocomplete="off">
+          <div id="master-nick-autocomplete" class="autocomplete-list hidden"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-master-cancel">Отмена</button>
+        <button type="button" class="btn btn-primary" id="modal-master-confirm">Назначить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Контейнер для уведомлений -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/kanban.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+
+</html>
