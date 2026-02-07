@@ -8,10 +8,12 @@
     /* ===== NAVBAR - Compact header ===== */
     .navbar {
         padding: 6px 0 !important;
+        padding-top: calc(6px + env(safe-area-inset-top)) !important;
+        /* Отступ для челки iPhone */
         position: sticky;
         top: 0;
         min-height: auto !important;
-        max-height: 56px !important;
+        max-height: none !important;
         height: auto !important;
         overflow: visible !important;
     }
