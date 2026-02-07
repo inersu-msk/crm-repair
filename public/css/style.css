@@ -822,7 +822,8 @@ body {
   cursor: pointer;
   box-shadow: var(--shadow-lg);
   transition: all 0.2s ease;
-  z-index: 90;
+  z-index: 101;
+  /* Выше чем bottom-nav (100) */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1239,6 +1240,7 @@ body {
   z-index: 2000;
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
   transition: opacity 0.3s ease;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
@@ -1247,6 +1249,7 @@ body {
 .status-sheet-overlay.active {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 /* Bottom Sheet Container */
