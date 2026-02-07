@@ -8,14 +8,16 @@
     /* ===== NAVBAR - Compact header ===== */
     .navbar {
         padding: 6px 0 !important;
-        padding-top: calc(6px + env(safe-area-inset-top)) !important;
-        /* Отступ для челки iPhone */
+        padding-top: calc(12px + env(safe-area-inset-top, 20px)) !important;
+        /* Увеличенный отступ сверху для челки + базовый отступ */
         position: sticky;
         top: 0;
         min-height: auto !important;
-        max-height: none !important;
+        /* Ограничиваем высоту: контент (~40px) + отступы + челка */
+        max-height: calc(64px + env(safe-area-inset-top, 20px)) !important;
         height: auto !important;
         overflow: visible !important;
+        transition: padding 0.2sease, max-height 0.2s ease;
     }
 
     .navbar-content {

@@ -21,6 +21,7 @@ class Kanban {
     render() {
         this.container.innerHTML = '';
         this.renderMobileTabs();
+        this.renderStatusSheetContainer();
 
         this.statuses.forEach((status, index) => {
             const column = this.createColumn(status);
@@ -120,6 +121,7 @@ class Kanban {
         card.dataset.orderId = order.id;
 
         const timeAgo = this.getTimeAgo(order.created_at);
+        const currentStatus = this.statuses.find(s => s.id === order.status_id);
 
         card.innerHTML = `
       <div class="order-card-header">
@@ -136,16 +138,32 @@ class Kanban {
           ${order.source_name ? `<span class="order-card-source">${order.source_name}</span>` : ''}
           ${order.master_nick ? `<span class="order-card-master">@${order.master_nick}</span>` : ''}
         </div>
-        ${order.amount ? `<span class="order-card-amount">${this.formatMoney(order.amount)}</span>` : ''}
+        <div style="display: flex; gap: 8px; align-items: center;">
+          ${order.amount ? `<span class="order-card-amount">${this.formatMoney(order.amount)}</span>` : ''}
+          <button class="status-change-btn" title="Изменить статус">
+            <span class="status-dot" style="background: ${currentStatus?.color || '#666'}"></span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </div>
       </div>
     `;
 
-        // Клик по карточке
-        card.addEventListener('click', () => {
+        // Кнопка смены статуса
+        const statusBtn = card.querySelector('.status-change-btn');
+        statusBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.openStatusSheet(order);
+        });
+
+        // Клик по карточке (открытие детального просмотра)
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.status-change-btn')) return;
             this.onOrderClick(order);
         });
 
-        // Drag start
+        // Drag start (для десктопа)
         card.addEventListener('dragstart', (e) => {
             card.classList.add('dragging');
             e.dataTransfer.setData('text/plain', order.id);
@@ -201,5 +219,77 @@ class Kanban {
     removeOrder(orderId) {
         this.orders = this.orders.filter(o => o.id !== orderId);
         this.render();
+    }
+
+    renderStatusSheetContainer() {
+        if (document.getElementById('status-sheet-overlay')) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'status-sheet-overlay';
+        overlay.className = 'status-sheet-overlay';
+
+        overlay.innerHTML = `
+            <div class="status-sheet">
+                <div class="status-sheet-header">
+                    <div class="status-sheet-title">Изменить статус</div>
+                    <button class="status-sheet-close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="status-sheet-options" id="status-sheet-options"></div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        const closeBtn = overlay.querySelector('.status-sheet-close');
+
+        const closeSheet = () => {
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.visibility = 'hidden';
+            }, 300);
+        };
+
+        closeBtn.onclick = closeSheet;
+        overlay.onclick = (e) => {
+            if (e.target === overlay) closeSheet();
+        };
+
+        this.statusSheet = { overlay, optionsContainer: overlay.querySelector('#status-sheet-options'), close: closeSheet };
+    }
+
+    openStatusSheet(order) {
+        if (!this.statusSheet) this.renderStatusSheetContainer();
+
+        const { overlay, optionsContainer } = this.statusSheet;
+
+        optionsContainer.innerHTML = this.statuses.map(s => `
+            <div class="status-sheet-option ${s.id === order.status_id ? 'active' : ''}" data-status-id="${s.id}">
+                <span class="status-dot" style="background: ${s.color}"></span>
+                ${s.name}
+                ${s.id === order.status_id ? '<svg style="margin-left: auto; color: var(--accent);" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+            </div>
+        `).join('');
+
+        optionsContainer.querySelectorAll('.status-sheet-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const newStatusId = parseInt(option.dataset.statusId);
+                this.statusSheet.close();
+
+                if (newStatusId === order.status_id) return;
+
+                const completedStatus = this.statuses.find(s => s.name === 'Завершён');
+                if (completedStatus && newStatusId === completedStatus.id) {
+                    this.onOrderClose(order.id);
+                } else {
+                    this.onOrderMove(order.id, newStatusId);
+                }
+            });
+        });
+
+        overlay.style.visibility = 'visible';
+        overlay.offsetHeight;
+        overlay.classList.add('active');
     }
 }

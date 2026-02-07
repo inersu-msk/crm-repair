@@ -1190,3 +1190,147 @@ body {
 .recording-player audio::-webkit-media-controls-mute-button {
   filter: invert(1);
 }
+
+/* ========================================
+   Status Change Button & Dropdown
+   ======================================== */
+
+/* ========================================
+   Status Change UI (Bottom Sheet)
+   ======================================== */
+
+.status-change-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  /* Круглая кнопка */
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.status-change-btn:active {
+  transform: scale(0.95);
+}
+
+.status-change-btn .status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px var(--bg-tertiary);
+  /* Отступ */
+}
+
+/* Overlay Backdrop */
+.status-sheet-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.status-sheet-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Bottom Sheet Container */
+.status-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-secondary);
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  padding: 24px 16px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 2001;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.status-sheet-overlay.active .status-sheet {
+  transform: translateY(0);
+}
+
+.status-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 8px;
+}
+
+.status-sheet-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.status-sheet-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  padding: 8px;
+  cursor: pointer;
+}
+
+.status-sheet-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.status-sheet-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.status-sheet-option:active {
+  transform: scale(0.98);
+  background: var(--bg-tertiary);
+}
+
+.status-sheet-option.active {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.1);
+  /* var(--accent) with opacity */
+}
+
+.status-sheet-option .status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
