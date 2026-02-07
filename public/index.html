@@ -49,6 +49,7 @@
           🔧 <span>CRM</span>
         </a>
 
+        <!-- Поисковая строка (скрыта по умолчанию на мобильных) -->
         <div class="navbar-search" id="search-container">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -56,10 +57,25 @@
             <path d="m21 21-4.3-4.3"></path>
           </svg>
           <input type="text" id="search-input" placeholder="Поиск заказов...">
+          <button class="search-close-btn" id="search-close-btn" title="Закрыть">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18"></path>
+              <path d="m6 6 12 12"></path>
+            </svg>
+          </button>
           <div id="search-results" class="search-results hidden"></div>
         </div>
 
         <div class="navbar-actions">
+          <!-- Кнопка поиска (видна только на мобильных) -->
+          <button class="btn btn-ghost btn-icon mobile-search-btn" id="btn-search" title="Поиск">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+          </button>
           <button class="btn btn-ghost btn-icon" id="btn-stats" title="Статистика">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

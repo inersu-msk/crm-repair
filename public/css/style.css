@@ -992,68 +992,10 @@ body {
   }
 }
 
-/* Адаптивность */
+/* Адаптивность - основные стили в mobile.css */
 @media (max-width: 768px) {
-  .navbar-search {
-    display: none;
-  }
-
-  .navbar-content {
-    padding: 0 4px;
-  }
-
-  .city-tabs {
-    padding: 12px 0;
-  }
-
-  .city-tab {
-    padding: 8px 14px;
-    font-size: 13px;
-  }
-
-  .kanban {
-    padding-bottom: 80px;
-  }
-
-  .kanban-column {
-    flex: 0 0 280px;
-    min-width: 280px;
-  }
-
   .bottom-nav {
     display: block;
-  }
-
-  .fab {
-    bottom: 80px;
-  }
-
-  .toast-container {
-    left: 16px;
-    right: 16px;
-    bottom: 100px;
-  }
-
-  .modal {
-    max-height: 85vh;
-    margin: 0;
-    border-radius: var(--radius) var(--radius) 0 0;
-    align-self: flex-end;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 400px) {
-  .kanban-column {
-    flex: 0 0 260px;
-    min-width: 260px;
-  }
-
-  .auth-card {
-    padding: 24px;
   }
 }
 

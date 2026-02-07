@@ -382,7 +382,36 @@ class App {
     setupSearchHandlers() {
         const searchInput = document.getElementById('search-input');
         const searchResults = document.getElementById('search-results');
+        const searchContainer = document.getElementById('search-container');
+        const mobileSearchBtn = document.getElementById('btn-search');
+        const searchCloseBtn = document.getElementById('search-close-btn');
         let debounceTimer;
+
+        // Mobile search button - open search overlay
+        if (mobileSearchBtn) {
+            mobileSearchBtn.addEventListener('click', () => {
+                searchContainer.classList.add('active');
+                searchInput.focus();
+            });
+        }
+
+        // Close button - hide search overlay
+        if (searchCloseBtn) {
+            searchCloseBtn.addEventListener('click', () => {
+                searchContainer.classList.remove('active');
+                searchInput.value = '';
+                searchResults.classList.add('hidden');
+            });
+        }
+
+        // Close on Escape key
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                searchContainer.classList.remove('active');
+                searchInput.value = '';
+                searchResults.classList.add('hidden');
+            }
+        });
 
         searchInput.addEventListener('input', () => {
             clearTimeout(debounceTimer);
@@ -431,6 +460,8 @@ class App {
                 this.openOrderModal(order);
                 searchResults.classList.add('hidden');
                 searchInput.value = '';
+                // Close mobile overlay
+                searchContainer.classList.remove('active');
             }
         });
 

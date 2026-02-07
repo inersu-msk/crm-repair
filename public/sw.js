@@ -1,7 +1,8 @@
-const CACHE_NAME = 'crm-v1';
+const CACHE_NAME = 'crm-v3';
 const urlsToCache = [
     '/',
     '/css/style.css',
+    '/css/mobile.css',
     '/js/api.js',
     '/js/kanban.js',
     '/js/app.js',
