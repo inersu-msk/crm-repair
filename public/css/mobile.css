@@ -9,20 +9,31 @@
     .navbar {
         padding: 6px 0 !important;
         padding-top: calc(12px + env(safe-area-inset-top, 20px)) !important;
-        /* Увеличенный отступ сверху для челки + базовый отступ */
         position: sticky;
         top: 0;
         min-height: auto !important;
-        /* Ограничиваем высоту: контент (~40px) + отступы + челка */
         max-height: calc(64px + env(safe-area-inset-top, 20px)) !important;
         height: auto !important;
         overflow: visible !important;
-        transition: padding 0.2sease, max-height 0.2s ease;
+        transition: padding 0.2s ease, max-height 0.2s ease;
+        z-index: 1000;
+        pointer-events: none;
+        /* Allow clicks to pass through transparent parts */
     }
 
     .navbar-content {
         padding: 0 12px;
         min-height: 40px;
+        pointer-events: none;
+        /* Ensure container doesn't block */
+    }
+
+    .navbar-brand,
+    .navbar-actions,
+    .btn-icon,
+    .mobile-search-btn {
+        pointer-events: auto;
+        /* Restore clicks for interactive elements */
     }
 
     .navbar-brand {
@@ -35,6 +46,8 @@
     }
 
     .navbar-search {
+        pointer-events: auto;
+        /* Search overlay needs clicks */
         display: none !important;
         height: 0 !important;
         width: 0 !important;
@@ -150,12 +163,16 @@
         padding: 6px 0 !important;
         padding-top: 4px !important;
         margin: 0 -12px !important;
-        margin-top: 0 !important;
+        margin-top: 8px !important;
+        /* Increase gap */
         padding-left: 12px !important;
         padding-right: 12px !important;
         gap: 8px;
         scrollbar-width: none;
         -ms-overflow-style: none;
+        position: relative;
+        z-index: 1002;
+        /* Ensure it is ABOVE the navbar (1000) so clicks work */
     }
 
     .city-tabs::-webkit-scrollbar {
@@ -166,11 +183,17 @@
         padding: 8px 14px;
         font-size: 13px;
         border-radius: 20px;
+        cursor: pointer;
+        /* Feedback for touch */
+        white-space: nowrap;
+        /* Prevent breaking */
+        flex-shrink: 0;
     }
 
     .city-tab-add {
         padding: 8px 12px;
         font-size: 12px;
+        cursor: pointer;
     }
 
     /* ===== MOBILE KANBAN TABS - Status switcher ===== */
@@ -188,7 +211,8 @@
         border-bottom: 1px solid var(--border);
         background: var(--bg-primary);
         position: sticky;
-        top: 52px;
+        top: calc(76px + env(safe-area-inset-top));
+        /* Navbar height (~64px) + padding */
         z-index: 50;
     }
 

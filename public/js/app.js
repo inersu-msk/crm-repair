@@ -99,17 +99,30 @@ class App {
         document.querySelectorAll('[data-page]').forEach(el => {
             el.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.navigateTo(el.dataset.page);
+                const page = el.dataset.page;
+                this.navigateTo(page);
+                history.pushState({ page }, '', `/${page}`);
             });
         });
 
         document.getElementById('btn-stats').addEventListener('click', () => {
             this.navigateTo('stats');
+            history.pushState({ page: 'stats' }, '', '/stats');
         });
 
         document.getElementById('btn-settings').addEventListener('click', () => {
             this.navigateTo('settings');
-            this.renderSettingsUsers(); // Load users when opening settings
+            this.renderSettingsUsers();
+            history.pushState({ page: 'settings' }, '', '/settings');
+        });
+
+        // Handle back button
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.page) {
+                this.navigateTo(event.state.page);
+            } else {
+                this.navigateTo('orders');
+            }
         });
 
         // Выход
@@ -133,6 +146,9 @@ class App {
 
         // Модальные окна
         this.setupModalHandlers();
+
+        // City Tabs Delegation
+        this.setupCityTabsHandler();
 
         // Поиск
         this.setupSearchHandlers();
@@ -621,6 +637,25 @@ class App {
         });
     }
 
+    setupCityTabsHandler() {
+        const container = document.getElementById('city-tabs');
+        if (!container) return;
+
+        // Remove existing listeners to avoid duplicates if called multiple times (though unlikely with this approach)
+        const newContainer = container.cloneNode(false);
+        // Actually, better to just check if listener attached or use a flag. 
+        // But since we are in a class, let's just attach it once in setupAppHandlers.
+
+        container.addEventListener('click', (e) => {
+            const tab = e.target.closest('.city-tab');
+            if (tab && tab.dataset.cityId) {
+                // Remove console logs later or leave for debug
+                console.log('Delegated click on city:', tab.dataset.cityId);
+                this.selectCity(parseInt(tab.dataset.cityId));
+            }
+        });
+    }
+
     renderSourcesSelect() {
         const select = document.getElementById('order-source');
         select.innerHTML = '<option value="">Не указано</option>' +
@@ -732,11 +767,16 @@ class App {
     }
 
     async selectCity(cityId) {
+        console.log('Selecting city:', cityId, 'Type:', typeof cityId);
         this.currentCityId = cityId;
 
         // Обновляем табы
         document.querySelectorAll('.city-tab').forEach(tab => {
-            tab.classList.toggle('active', parseInt(tab.dataset.cityId) === cityId);
+            const tabId = tab.dataset.cityId;
+            // Use loose comparison to handle string/number diffs
+            const isActive = tabId == cityId;
+            console.log(`Tab ${tabId} == ${cityId}? ${isActive}`);
+            tab.classList.toggle('active', isActive);
         });
 
         // Загружаем заказы
@@ -1247,7 +1287,7 @@ class App {
 
 // Запуск приложения
 document.addEventListener('DOMContentLoaded', () => {
-    new App();
+    window.app = new App();
 });
 
 // Регистрация Service Worker для PWA

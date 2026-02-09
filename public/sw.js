@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crm-v6';
+const CACHE_NAME = 'crm-v13';
 const urlsToCache = [
     '/',
     '/css/style.css',
